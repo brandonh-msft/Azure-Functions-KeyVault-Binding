@@ -1,10 +1,19 @@
-# An Azure Function binding for KeyVault
+# An Azure Functions (2.0) binding for KeyVault
 1. Create a new Azure Function instance in Azure
 1. Create a new KeyVault instance in Azure
 1. Ensure the Azure Function has 'Managed Service Identity' turned on
 1. Add the Azure Function (by resource name) to the Key Vault's Access Policy list with 'Secret | Get' permissions
 	Fill out only the 'Principal' part, not the Application part of the form
-1. Use the KeyVault binding in your Azure Function like:
+1. Use the KeyVault binding in your Azure Function by:
+
+Adding the nuget package to your project
+
+~~~
+Install-Package BC3Technologies.Azure.Functions.Extensions.KeyVault -IncludePrerelease
+~~~
+
+Then referencing it in your Function definition
+
 ```csharp
 public static IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, [KeyVaultSecret(@"MyKv", @"MySecretId")]string secretValue, ILogger log)
 ```

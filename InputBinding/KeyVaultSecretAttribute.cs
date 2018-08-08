@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Azure.WebJobs.Description;
 
-namespace KeyVaultInputBinding
+namespace Functions.Extensions.KeyVault
 {
     /// <summary></summary>
     /// <seealso cref="System.Attribute" />

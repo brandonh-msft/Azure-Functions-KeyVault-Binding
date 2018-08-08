@@ -7,10 +7,16 @@ using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Config;
 
-namespace KeyVaultInputBinding
+namespace Functions.Extensions.KeyVault
 {
+    /// <summary></summary>
+    /// <seealso cref="Microsoft.Azure.WebJobs.Host.Config.IExtensionConfigProvider" />
     public class KeyVaultSecretConfiguration : IExtensionConfigProvider
     {
+        /// <summary>
+        /// Initializes the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
         public void Initialize(ExtensionConfigContext context)
         {
             context.AddBindingRule<KeyVaultSecretAttribute>()
