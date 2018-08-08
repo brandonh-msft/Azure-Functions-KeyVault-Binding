@@ -5,18 +5,18 @@
     <AssemblyName>Functions.Extensions.KeyVault</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>BC3Technologies.Azure.Functions.Extensions.KeyVault</PackageId>
-    <Version>2.0.0-preview3</Version>
+    <Version>2.0.0-preview4</Version>
     <Authors>bc3tech</Authors>
     <Company>BC3 Technologies</Company>
     <Product>Azure Functions KeyVault input binding</Product>
-    <Description>Provides an input binding for fetching secrets from Azure Key Vault</Description>
+    <Description>Provides an input binding for Azure Functions v2 to get keys and get/set secrets from Azure Key Vault</Description>
     <Copyright>2018</Copyright>
     <RepositoryUrl>https://github.com/brandonh-msft/Azure-Functions-KeyVault-Binding</RepositoryUrl>
     <RepositoryType />
     <PackageTags>azure azure-functions keyvault key-vault serverless binding bindings</PackageTags>
-    <PackageReleaseNotes>Added Output binding for Key Vault Secrets</PackageReleaseNotes>
-    <AssemblyVersion>2.0.0.3</AssemblyVersion>
-    <FileVersion>2.0.0.3</FileVersion>
+    <PackageReleaseNotes>Added input binding for Key Vault Keys</PackageReleaseNotes>
+    <AssemblyVersion>2.0.0.4</AssemblyVersion>
+    <FileVersion>2.0.0.4</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
