@@ -1,3 +1,5 @@
+[![Build status](https://bc3tech.visualstudio.com/Projects/_apis/build/status/KeyVault%20Binding%20CI)](https://bc3tech.visualstudio.com/Projects/_build/latest?definitionId=38)
+
 # An Azure Functions (2.0) binding for KeyVault
 1. Create a new Azure Function instance in Azure
 1. Create a new KeyVault instance in Azure
