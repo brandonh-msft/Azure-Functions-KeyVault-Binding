@@ -30,5 +30,4 @@ where `MyKv` and `MySecretId` are defined in your app settings like:
 
 ## Coming Soon
 - Input binding for Keys
-- Output binding for Secrets
 - Output binding for Keys
