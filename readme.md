@@ -3,7 +3,9 @@
 1. Create a new KeyVault instance in Azure
 1. Ensure the Azure Function has 'Managed Service Identity' turned on
 1. Add the Azure Function (by resource name) to the Key Vault's Access Policy list with 'Secret | Get' permissions
-	Fill out only the 'Principal' part, not the Application part of the form
+	Fill out only the 'Select Principal' part, not the 'Authorized application' part of the form
+
+    You can get more detail on setting this up by reading [this blog post from Functions PM, Jeff Hollan](https://medium.com/statuscode/getting-key-vault-secrets-in-azure-functions-37620fd20a0b).
 1. Use the KeyVault binding in your Azure Function by:
 
 Adding the nuget package to your project
