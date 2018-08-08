@@ -30,6 +30,5 @@ where `MyKv` and `MySecretId` are defined in your app settings like:
 
 6. Run your function & you will see the `secretValue` parameter populated with the value from the `MyKv` Key Vault for the secret `MySecretId`
 
-## Coming Soon
-- Input binding for Keys
-- Output binding for Keys
+- You can also use `[KeyVaultSecret(@"MyKv", @"MySecretId")]**out** string myNewKeyValue` to _set_ the value of `fooSecret` in KeyVault
+- You can get a JsonWebKey for a Key Vault **key** by using `[KeyVaultKey("kvresourcesetting","keynamesetting")]JsonWebKey myKey`
