@@ -16,13 +16,17 @@ namespace TestFunctions
          */
 
         [FunctionName(nameof(GetSecret))]
-        public static IActionResult GetSecret([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, [KeyVaultSecret(@"MyKv", @"MySecretId")]string secretValue, ILogger log)
+        public static IActionResult GetSecret([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, 
+            [KeyVaultSecret(@"MyKv", @"MySecretId")]string secretValue, 
+            ILogger log)
         {
             return new OkObjectResult($@"Secret: {secretValue}");
         }
 
         [FunctionName(nameof(SetSecret))]
-        public static IActionResult SetSecret([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req, [KeyVaultSecret(@"MyKv", @"MySecretId")]out string secretValue, ILogger log)
+        public static IActionResult SetSecret([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req, 
+            [KeyVaultSecret(@"MyKv", @"MySecretId")]out string secretValue, 
+            ILogger log)
         {
             // can't use the async overload here & async/await, because async methods can't have 'out' params.
             // This output binding doesn't make sense to use with an IAsyncCollector<string> because why would you set the same secret's value multiple times throughout a run?

@@ -1,0 +1,10 @@
+﻿{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "MyKv": "ResourceNameInAzure",
+    "MySecretIdExactVersionUsableOnlyForGet": "Ping/3e2981b1188248d584af713a8c2bfd45",
+    "MySecretId": "Ping"
+  }
+}

@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Functions.Extensions.KeyVault</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>BC3Technologies.Azure.Functions.Extensions.KeyVault</PackageId>
-    <Version>2.0.0-preview4</Version>
+    <Version>2.0.0-preview5</Version>
     <Authors>bc3tech</Authors>
     <Company>BC3 Technologies</Company>
     <Product>Azure Functions KeyVault input binding</Product>
@@ -34,8 +34,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.0" />
     <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.1.0-preview" />
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.0-beta5" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.0-beta5" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.0" />
   </ItemGroup>
 
 </Project>

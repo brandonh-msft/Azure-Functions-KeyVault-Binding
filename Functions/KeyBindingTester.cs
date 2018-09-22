@@ -15,7 +15,9 @@ namespace TestFunctions
          */
 
         [FunctionName(nameof(GetKey))]
-        public static IActionResult GetKey([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, [KeyVaultKey(@"MyKv", @"MyKeyId")]JsonWebKey kvKey, ILogger log)
+        public static IActionResult GetKey([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, 
+            [KeyVaultKey(@"MyKv", @"MySecretId")]JsonWebKey kvKey, 
+            ILogger log)
         {
             return new OkObjectResult($@"Key value: {kvKey.ToString()}");
         }

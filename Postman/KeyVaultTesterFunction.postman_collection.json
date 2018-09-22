@@ -1,0 +1,75 @@
+{
+	"info": {
+		"_postman_id": "f547721f-1cb3-4b38-a1b3-135b830be410",
+		"name": "KeyVaultTesterFunction",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Key",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:7071/api/GetKey",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"GetKey"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Secret",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:7071/api/GetSecret",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"GetSecret"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Secret Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "Pong2123"
+				},
+				"url": {
+					"raw": "http://localhost:7071/api/SetSecret",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"SetSecret"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
