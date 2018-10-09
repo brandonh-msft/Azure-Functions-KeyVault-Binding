@@ -5,7 +5,7 @@
     <AssemblyName>Functions.Extensions.KeyVault</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>BC3Technologies.Azure.Functions.Extensions.KeyVault</PackageId>
-    <Version>2.0.0-preview4</Version>
+    <Version>2.0.0</Version>
     <Authors>bc3tech</Authors>
     <Company>BC3 Technologies</Company>
     <Product>Azure Functions KeyVault input binding</Product>
@@ -15,8 +15,8 @@
     <RepositoryType />
     <PackageTags>azure azure-functions keyvault key-vault serverless binding bindings</PackageTags>
     <PackageReleaseNotes>Added input binding for Key Vault Keys</PackageReleaseNotes>
-    <AssemblyVersion>2.0.0.4</AssemblyVersion>
-    <FileVersion>2.0.0.4</FileVersion>
+    <AssemblyVersion>2.0.0.10</AssemblyVersion>
+    <FileVersion>2.0.0.10</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
