@@ -6,12 +6,14 @@ using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.WebKey;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
 
 namespace Functions.Extensions.KeyVault
 {
     /// <summary></summary>
     /// <seealso cref="Microsoft.Azure.WebJobs.Host.Config.IExtensionConfigProvider" />
+    [Extension(@"KeyVaultKey")]
     public class KeyVaultKeyConfiguration : IExtensionConfigProvider
     {
         // Make these static, particularly the HttpClient, so as not to exhaust the connection pool when using input & output bindings

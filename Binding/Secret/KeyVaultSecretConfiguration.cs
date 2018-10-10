@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
 
 namespace Functions.Extensions.KeyVault
 {
     /// <summary></summary>
     /// <seealso cref="Microsoft.Azure.WebJobs.Host.Config.IExtensionConfigProvider" />
+    [Extension(@"KeyVaultSecret")]
     public class KeyVaultSecretConfiguration : IExtensionConfigProvider
     {
         // Make these static, particularly the HttpClient, so as not to exhaust the connection pool when using input & output bindings
@@ -47,7 +49,6 @@ namespace Functions.Extensions.KeyVault
                 .BindToCollector(KeyVaultSecretOutputConverter.Instance);
         }
 
-
         class KeyVaultSecretInputConverter : IAsyncConverter<KeyVaultSecretAttribute, string>
         {
             private KeyVaultSecretInputConverter() { }
@@ -71,7 +72,10 @@ namespace Functions.Extensions.KeyVault
             // Provide a static instance to the keyvault converter so the funchost doesn't have to spin it up over and over, potentially exhausting connections or getting rate-limited
             public static KeyVaultSecretOutputConverter Instance { get; } = new KeyVaultSecretOutputConverter();
 
-            public Task<IAsyncCollector<string>> ConvertAsync(KeyVaultSecretAttribute input, CancellationToken cancellationToken) => Task.FromResult(new KeyVaultCollector(input) as IAsyncCollector<string>);
+            public Task<IAsyncCollector<string>> ConvertAsync(KeyVaultSecretAttribute input, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new KeyVaultCollector(input) as IAsyncCollector<string>);
+            }
 
             private class KeyVaultCollector : IAsyncCollector<string>
             {
@@ -81,7 +85,7 @@ namespace Functions.Extensions.KeyVault
 
                 public KeyVaultCollector(KeyVaultSecretAttribute attrib)
                 {
-                    this._attrib = attrib;
+                    _attrib = attrib;
                 }
 
                 public Task AddAsync(string item, CancellationToken cancellationToken = default(CancellationToken))
