@@ -19,7 +19,22 @@ namespace Functions.Extensions.KeyVault
         // This is static so as not to exhaust the connection pool when using input & output bindings
         private static readonly Dictionary<string, SecretClient> _cache = new Dictionary<string, SecretClient>();
         // This is static so the credential-determination logic only gets done once since it's highly unlikely to change during the course of a Function App's execution
-        private static readonly TokenCredential _tokenCredential = new DefaultAzureCredential();
+        private static readonly TokenCredential _tokenCredential = new DefaultAzureCredential(
+#if DEBUG
+            // Tune these so the default credential picks from where you're logged into Azure and ready to hit the KV you want to test locally
+            new DefaultAzureCredentialOptions
+            {
+                ExcludeAzureCliCredential = false,
+                ExcludeAzurePowerShellCredential = true,
+                ExcludeEnvironmentCredential = true,
+                ExcludeInteractiveBrowserCredential = true,
+                ExcludeManagedIdentityCredential = true,
+                ExcludeSharedTokenCacheCredential = true,
+                ExcludeVisualStudioCodeCredential = true,
+                ExcludeVisualStudioCredential = true,
+            }
+#endif
+            );
 
         /// <summary>
         /// Initializes the specified context.
@@ -87,7 +102,7 @@ namespace Functions.Extensions.KeyVault
 
                 public KeyVaultCollector(KeyVaultSecretAttribute attrib) => _attrib = attrib;
 
-                public Task AddAsync(string item, CancellationToken cancellationToken = default(CancellationToken))
+                public Task AddAsync(string item, CancellationToken cancellationToken = default)
                 {
                     var currentTask = _cache[_attrib.ResourceNameSetting].SetSecretAsync(_attrib.SecretIdSetting, item, cancellationToken);
                     _tasks.Add(currentTask);

@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Host.Config;
 
 namespace Functions.Extensions.KeyVault
 {
+
     /// <summary></summary>
     /// <seealso cref="Microsoft.Azure.WebJobs.Host.Config.IExtensionConfigProvider" />
     [Extension(@"KeyVaultKey")]
@@ -19,7 +20,22 @@ namespace Functions.Extensions.KeyVault
         // This is static so as not to exhaust the connection pool when using input & output bindings
         private static readonly Dictionary<string, KeyClient> _cache = new Dictionary<string, KeyClient>();
         // This is static so the credential-determination logic only gets done once since it's highly unlikely to change during the course of a Function App's execution
-        private static readonly TokenCredential _tokenCredential = new DefaultAzureCredential();
+        private static readonly TokenCredential _tokenCredential = new DefaultAzureCredential(
+#if DEBUG
+            // Tune these so the default credential picks from where you're logged into Azure and ready to hit the KV you want to test locally
+            new DefaultAzureCredentialOptions
+            {
+                ExcludeAzureCliCredential = false,
+                ExcludeAzurePowerShellCredential = true,
+                ExcludeEnvironmentCredential = true,
+                ExcludeInteractiveBrowserCredential = true,
+                ExcludeManagedIdentityCredential = true,
+                ExcludeSharedTokenCacheCredential = true,
+                ExcludeVisualStudioCodeCredential = true,
+                ExcludeVisualStudioCredential = true,
+            }
+#endif
+            );
 
         /// <summary>
         /// Initializes the specified context.
