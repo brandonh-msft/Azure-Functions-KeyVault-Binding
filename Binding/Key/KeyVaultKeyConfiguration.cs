@@ -79,8 +79,20 @@ namespace Functions.Extensions.KeyVault
             // "convert" means "take the attribute, and give me back the <T> (in this case string) the user's asking for." So here, it means "go hit the keyvault instance they've specified and get the value for the secret"
             public async Task<JsonWebKey> ConvertAsync(KeyVaultKeyAttribute attrib, CancellationToken cancellationToken)
             {
-                var keyBundle = await _cache[attrib.ResourceNameSetting].GetKeyAsync(attrib.KeyIdSetting);
-                return keyBundle.Value.Key;
+                try
+                {
+                    var keyBundle = await _cache[attrib.ResourceNameSetting].GetKeyAsync(attrib.KeyIdSetting);
+                    return keyBundle.Value.Key;
+                }
+                catch (Azure.RequestFailedException ex)
+                {
+                    if (ex.Status == 404)
+                    {
+                        return null;
+                    }
+
+                    throw;
+                }
             }
         }
     }

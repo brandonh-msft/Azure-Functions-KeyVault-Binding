@@ -80,8 +80,20 @@ namespace Functions.Extensions.KeyVault
             // "convert" means "take the attribute, and give me back the <T> (in this case string) the user's asking for." So here, it means "go hit the keyvault instance they've specified and get the value for the secret"
             public async Task<string> ConvertAsync(KeyVaultSecretAttribute attrib, CancellationToken cancellationToken)
             {
-                var secretBundle = await _cache[attrib.ResourceNameSetting].GetSecretAsync(attrib.SecretIdSetting);
-                return secretBundle.Value.Value;
+                try
+                {
+                    var secretBundle = await _cache[attrib.ResourceNameSetting].GetSecretAsync(attrib.SecretIdSetting);
+                    return secretBundle.Value.Value;
+                }
+                catch (Azure.RequestFailedException ex)
+                {
+                    if (ex.Status == 404)
+                    {
+                        return null;
+                    }
+
+                    throw;
+                }
             }
         }
 
