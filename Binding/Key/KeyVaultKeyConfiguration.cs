@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.KeyVault.WebKey;
-using Microsoft.Azure.Services.AppAuthentication;
+using Azure.Core;
+using Azure.Identity;
+using Azure.Security.KeyVault.Keys;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
@@ -16,11 +16,10 @@ namespace Functions.Extensions.KeyVault
     [Extension(@"KeyVaultKey")]
     public class KeyVaultKeyConfiguration : IExtensionConfigProvider
     {
-        // Make these static, particularly the HttpClient, so as not to exhaust the connection pool when using input & output bindings
-        private static readonly HttpClient _httpClient = new HttpClient();
-        private static readonly AzureServiceTokenProvider _tokenProvider = new AzureServiceTokenProvider();
-
-        private static readonly KeyVaultClient _kvClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(_tokenProvider.KeyVaultTokenCallback), _httpClient);
+        // This is static so as not to exhaust the connection pool when using input & output bindings
+        private static readonly Dictionary<string, KeyClient> _cache = new Dictionary<string, KeyClient>();
+        // This is static so the credential-determination logic only gets done once since it's highly unlikely to change during the course of a Function App's execution
+        private static readonly TokenCredential _tokenCredential = new DefaultAzureCredential();
 
         /// <summary>
         /// Initializes the specified context.
@@ -44,6 +43,12 @@ namespace Functions.Extensions.KeyVault
                     {
                         throw new ArgumentNullException(nameof(attrib.KeyIdSetting));
                     }
+
+                    // if all is good, cache a SecretClient instance for the KeyVault resource
+                    if (!_cache.ContainsKey(attrib.ResourceNameSetting))
+                    {
+                        _cache.Add(attrib.ResourceNameSetting, new KeyClient(new Uri($@"https://{attrib.ResourceNameSetting}.vault.azure.net"), _tokenCredential));
+                    }
                 });
         }
 
@@ -58,8 +63,8 @@ namespace Functions.Extensions.KeyVault
             // "convert" means "take the attribute, and give me back the <T> (in this case string) the user's asking for." So here, it means "go hit the keyvault instance they've specified and get the value for the secret"
             public async Task<JsonWebKey> ConvertAsync(KeyVaultKeyAttribute attrib, CancellationToken cancellationToken)
             {
-                var keyBundle = await _kvClient.GetKeyAsync($@"https://{attrib.ResourceNameSetting}.vault.azure.net/keys/{attrib.KeyIdSetting}");
-                return keyBundle.Key;
+                var keyBundle = await _cache[attrib.ResourceNameSetting].GetKeyAsync(attrib.KeyIdSetting);
+                return keyBundle.Value.Key;
             }
         }
     }

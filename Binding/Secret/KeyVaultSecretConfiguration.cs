@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.Services.AppAuthentication;
+using Azure.Core;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
@@ -15,11 +16,10 @@ namespace Functions.Extensions.KeyVault
     [Extension(@"KeyVaultSecret")]
     public class KeyVaultSecretConfiguration : IExtensionConfigProvider
     {
-        // Make these static, particularly the HttpClient, so as not to exhaust the connection pool when using input & output bindings
-        private static readonly HttpClient _httpClient = new HttpClient();
-        private static readonly AzureServiceTokenProvider _tokenProvider = new AzureServiceTokenProvider();
-
-        private static readonly KeyVaultClient _kvClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(_tokenProvider.KeyVaultTokenCallback), _httpClient);
+        // This is static so as not to exhaust the connection pool when using input & output bindings
+        private static readonly Dictionary<string, SecretClient> _cache = new Dictionary<string, SecretClient>();
+        // This is static so the credential-determination logic only gets done once since it's highly unlikely to change during the course of a Function App's execution
+        private static readonly TokenCredential _tokenCredential = new DefaultAzureCredential();
 
         /// <summary>
         /// Initializes the specified context.
@@ -43,6 +43,12 @@ namespace Functions.Extensions.KeyVault
                     {
                         throw new ArgumentNullException(nameof(attrib.SecretIdSetting));
                     }
+
+                    // if all is good, cache a SecretClient instance for the KeyVault resource
+                    if (!_cache.ContainsKey(attrib.ResourceNameSetting))
+                    {
+                        _cache.Add(attrib.ResourceNameSetting, new SecretClient(new Uri($@"https://{attrib.ResourceNameSetting}.vault.azure.net"), _tokenCredential));
+                    }
                 });
 
             context.AddBindingRule<KeyVaultSecretAttribute>()
@@ -59,12 +65,12 @@ namespace Functions.Extensions.KeyVault
             // "convert" means "take the attribute, and give me back the <T> (in this case string) the user's asking for." So here, it means "go hit the keyvault instance they've specified and get the value for the secret"
             public async Task<string> ConvertAsync(KeyVaultSecretAttribute attrib, CancellationToken cancellationToken)
             {
-                var secretBundle = await _kvClient.GetSecretAsync($@"https://{attrib.ResourceNameSetting}.vault.azure.net/secrets/{attrib.SecretIdSetting}");
-                return secretBundle.Value;
+                var secretBundle = await _cache[attrib.ResourceNameSetting].GetSecretAsync(attrib.SecretIdSetting);
+                return secretBundle.Value.Value;
             }
         }
 
-        // Fortunately (or perhaps unfortunately in the case of this bilnding) every output binding boils down to an IAsyncCollector<T>. This means that ultimately every output binding could be use to "collect" *multiple* changes. While this doesn't make sense for our KV Secret output binding, simply using it as an 'out string mySecret' in the Function eventually pipes it down in to this code where we set the value of the secret reference in the attribute.
+        // Fortunately (or perhaps unfortunately in the case of this binding) every output binding boils down to an IAsyncCollector<T>. This means that ultimately every output binding could be use to "collect" *multiple* changes. While this doesn't make sense for our KV Secret output binding, simply using it as an 'out string mySecret' in the Function eventually pipes it down in to this code where we set the value of the secret reference in the attribute.
         class KeyVaultSecretOutputConverter : IAsyncConverter<KeyVaultSecretAttribute, IAsyncCollector<string>>
         {
             private KeyVaultSecretOutputConverter() { }
@@ -72,32 +78,23 @@ namespace Functions.Extensions.KeyVault
             // Provide a static instance to the keyvault converter so the funchost doesn't have to spin it up over and over, potentially exhausting connections or getting rate-limited
             public static KeyVaultSecretOutputConverter Instance { get; } = new KeyVaultSecretOutputConverter();
 
-            public Task<IAsyncCollector<string>> ConvertAsync(KeyVaultSecretAttribute input, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(new KeyVaultCollector(input) as IAsyncCollector<string>);
-            }
+            public Task<IAsyncCollector<string>> ConvertAsync(KeyVaultSecretAttribute input, CancellationToken cancellationToken) => Task.FromResult(new KeyVaultCollector(input) as IAsyncCollector<string>);
 
             private class KeyVaultCollector : IAsyncCollector<string>
             {
                 private readonly KeyVaultSecretAttribute _attrib;
+                private readonly List<Task> _tasks = new List<Task>();
 
-                private Task _currentTask;
-
-                public KeyVaultCollector(KeyVaultSecretAttribute attrib)
-                {
-                    _attrib = attrib;
-                }
+                public KeyVaultCollector(KeyVaultSecretAttribute attrib) => _attrib = attrib;
 
                 public Task AddAsync(string item, CancellationToken cancellationToken = default(CancellationToken))
                 {
-                    _currentTask = _kvClient.SetSecretAsync($@"https://{_attrib.ResourceNameSetting}.vault.azure.net", _attrib.SecretIdSetting, item);
-                    return _currentTask;
+                    var currentTask = _cache[_attrib.ResourceNameSetting].SetSecretAsync(_attrib.SecretIdSetting, item, cancellationToken);
+                    _tasks.Add(currentTask);
+                    return currentTask;
                 }
 
-                public async Task FlushAsync(CancellationToken cancellationToken = default(CancellationToken))
-                {
-                    await _currentTask;
-                }
+                public Task FlushAsync(CancellationToken cancellationToken = default) => Task.WhenAll(_tasks);
             }
         }
     }
